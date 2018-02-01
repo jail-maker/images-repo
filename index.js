@@ -16,7 +16,7 @@ const app = new Koa();
 const router = Router({ prefix: '/api/v1/' }).loadMethods();
 const root = Router();
 
-const STORAGE = './jsnap-repo';
+const STORAGE = './jmaker-images';
 const HOSTNAME = '127.0.0.1';
 const PORT = 3000;
 

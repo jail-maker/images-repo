@@ -12,7 +12,7 @@ const ImageMeta = require('./libs/image-meta.js');
 const ImageMetaJsonMapper = require('./libs/image-meta-json-mapper.js');
 
 const app = new Koa();
-const router = Router({ prefix: '/api/v1/' }).loadMethods();
+const router = Router({ prefix: '/api/v1' }).loadMethods();
 const root = Router();
 
 const STORAGE = './jmaker-images';

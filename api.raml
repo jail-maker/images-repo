@@ -1,0 +1,85 @@
+#%RAML 1.0
+title: jmaker images repository API
+baseUri: http://127.0.0.1:3000/{version}
+version: v1
+
+types:
+  ImageMetaRef:
+    type: object
+    properties:
+      name: string
+      links:
+        type: object
+        properties:
+          meta: string
+          data: string
+
+  ImageMeta:
+    type: object
+    properties:
+      name: string
+      maintainer?: string
+      version?: string
+
+/images:
+  get:
+    description: return exsiting images.
+    responses:
+      200:
+        body:
+          application/json:
+            type: ImageMetaRef[]
+
+  post:
+    body:
+      application/json:
+        type: ImageMeta
+
+    responses:
+      201:
+        description: If server created new resource.
+      409:
+        description: If resource already exists.
+
+  /{imageName}:
+    get:
+      responses:
+        200:
+          body:
+            application/json:
+              properties:
+                data:
+                  type: ImageMeta
+                links:
+                  properties: 
+                    self: string
+                    data: string
+
+        404:
+          description: If resource not found.
+
+    delete:
+      responses:
+        200:
+          description: If resource was completely deleted.
+        404:
+          description: If resource not found.
+
+    /data:
+      get:
+        description: Starting download image file.
+        responses:
+          200:
+            description: If resource found and starting download.
+          404:
+            description: If resource not found.
+
+      put:
+        responses:
+          200:
+            description: If resource was completely updated.
+          404:
+            description: If resource not found.
+
+
+

@@ -1,0 +1,15 @@
+{
+  "name": "jsnap-repo",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "file-type": "^7.5.0",
+    "koa": "^2.4.1",
+    "koa-better-body": "^3.0.4",
+    "koa-better-router": "^2.1.1",
+    "koa-body": "^2.5.0",
+    "koa-rest-router": "^1.0.1",
+    "read-chunk": "^2.1.0"
+  }
+}

@@ -4,7 +4,6 @@
 
 const fs = require('fs');
 const path = require('path');
-const fileType = require('file-type');
 const Koa = require('koa');
 const Router = require('koa-better-router');
 const body = require('koa-body');

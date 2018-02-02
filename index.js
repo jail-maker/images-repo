@@ -7,9 +7,11 @@ const path = require('path');
 const Koa = require('koa');
 const Router = require('koa-better-router');
 const body = require('koa-body');
+const uniqid = require('uniqid');
 
 const ImageMeta = require('./libs/image-meta.js');
 const ImageMetaJsonMapper = require('./libs/image-meta-json-mapper.js');
+const sha256File = require('./libs/sha256-file.js');
 
 const app = new Koa();
 const router = Router({ prefix: '/api/v1' }).loadMethods();
@@ -42,7 +44,16 @@ router.get('/images', (ctx, next) => {
 
 router.post('/images', (ctx, next) => {
 
-    let meta = ImageMeta.fromJSON(ctx.request.body);
+    let body = ctx.request.body;
+    // let meta = ImageMeta.fromJSON(ctx.request.body);
+    let meta = new ImageMeta;
+
+    meta.name = body.name;
+    meta.maintainer = body.maintainer;
+    meta.description = body.description;
+    meta.parent = body.parent;
+    meta.version = body.version;
+
     let metaMapper = new ImageMetaJsonMapper('images-meta.json');
     try {
 
@@ -103,7 +114,7 @@ router.delete('/images/:image', (ctx, next) => {
 });
 
 
-router.put('/images/:image/data', (ctx, next) => {
+router.put('/images/:image/data', async (ctx, next) => {
 
     let metaMapper = new ImageMetaJsonMapper('images-meta.json');
 
@@ -115,8 +126,28 @@ router.put('/images/:image/data', (ctx, next) => {
 
     }
 
+    let meta = metaMapper.getByName(image);
     let files = ctx.request.body.files;
-    fs.renameSync(files.data.path, path.join(STORAGE, image));
+
+    if (meta.fileName) {
+
+        try {
+
+            fs.unlinkSync(path.join(STORAGE, meta.fileName));
+
+        } catch (error) {
+
+            console.log(error);
+
+        }
+
+    }
+
+    meta.fileName = uniqid() + path.extname(files.data.name);
+    meta.sha256 = await sha256File(files.data.path);
+
+    fs.renameSync(files.data.path, path.join(STORAGE, meta.fileName));
+    metaMapper.update(meta);
     ctx.status = 200;
 
 });
@@ -133,11 +164,11 @@ router.get('/images/:image/data', (ctx, next) => {
 
     }
 
-    let stream = fs.createReadStream(path.join(STORAGE, image));
-    ctx.set('content-disposition', `attachment; filename="${image}"`)
+    let meta = metaMapper.getByName(image);
+    let stream = fs.createReadStream(path.join(STORAGE, meta.fileName));
+    ctx.set('content-disposition', `attachment; filename="${meta.fileName}"`)
     ctx.body = stream;
     return;
-
 
 });
 

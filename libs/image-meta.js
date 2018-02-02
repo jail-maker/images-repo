@@ -7,6 +7,11 @@ class ImageMeta {
         this.name = '';
         this.version = '';
         this.maintainer = '';
+        this.description = '';
+        this.parent = null;
+
+        this.fileName = '';
+        this.sha256 = '';
 
     }
 

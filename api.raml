@@ -19,6 +19,17 @@ types:
     properties:
       name: string
       maintainer?: string
+      fileName?: string
+      sha256?: string
+      parent?: string
+      version?: string
+
+  UploadImageMeta:
+    type: object
+    properties:
+      name: string
+      maintainer?: string
+      parent?: string
       version?: string
 
 /images:
@@ -33,7 +44,7 @@ types:
   post:
     body:
       application/json:
-        type: ImageMeta
+        type: UploadImageMeta
 
     responses:
       201:

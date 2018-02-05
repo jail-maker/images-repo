@@ -92,5 +92,14 @@ types:
           404:
             description: If resource not found.
 
-
-
+    /parents:
+      get:
+        responses:
+          200:
+            body:
+              application/json:
+                properties:
+                  name: string
+                  links:
+                    meta: string
+                    data: string

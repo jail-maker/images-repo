@@ -45,7 +45,6 @@ router.get('/images', (ctx, next) => {
 router.post('/images', (ctx, next) => {
 
     let body = ctx.request.body;
-    // let meta = ImageMeta.fromJSON(ctx.request.body);
     let meta = new ImageMeta;
 
     meta.name = body.name;

@@ -90,8 +90,45 @@ router.get('/images/:image', (ctx, next) => {
         links: {
             self: `/images/${meta.name}`,
             data: `/images/${meta.name}/data`,
+            parent: meta.parent ? `/images/${meta.parent}` : null,
+            parents: `/images/${meta.name}/parents`,
         }
     };
+
+});
+
+router.get('/images/:image/parents', (ctx, next) => {
+
+    let image = ctx.params.image;
+    let metaMapper = new ImageMetaJsonMapper('images-meta.json');
+    let current = metaMapper.getByName(image);
+
+    let getParents = (name, images = []) => {
+
+        if (!name) return images;
+        let meta = metaMapper.getByName(name);
+        let data = {
+            name: meta.name,
+            links: {
+                meta: `/images/${meta.name}`,
+                data: `/images/${meta.name}/data`,
+            }
+        };
+        images = getParents(meta.parent, images);
+        images.push(data);
+        return images;
+
+    }
+
+    try {
+
+        ctx.body = getParents(current.parent);
+
+    } catch (error) {
+
+        ctx.status = 500;
+
+    }
 
 });
 

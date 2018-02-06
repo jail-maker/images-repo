@@ -98,8 +98,13 @@ types:
           200:
             body:
               application/json:
-                properties:
-                  name: string
-                  links:
-                    meta: string
-                    data: string
+                type: array
+                items: 
+                  type: object
+                  properties:
+                    name: string
+                    links:
+                      type: object
+                      properties:
+                        meta: string
+                        data: string

@@ -133,12 +133,12 @@ router.get('/images/:image/parents', (ctx, next) => {
 
 router.delete('/images/:image', (ctx, next) => {
 
-    let name = ctx.params.name;
+    let image = ctx.params.image;
     let metaMapper = new ImageMetaJsonMapper('images-meta.json');
 
     try {
 
-        metaMapper.delete(name);
+        metaMapper.delete(image);
         ctx.status = 200;
 
     } catch (error) {

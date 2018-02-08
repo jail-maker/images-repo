@@ -108,9 +108,11 @@ router.get('/images/:image/parents', (ctx, next) => {
         let meta = metaMapper.getByName(name);
         let data = {
             name: meta.name,
+            parent: meta.parent,
             links: {
                 meta: `/images/${meta.name}`,
                 data: `/images/${meta.name}/data`,
+                parent: meta.parent ? `/images/${meta.parent}` : null,
             }
         };
         images = getParents(meta.parent, images);
@@ -138,7 +140,10 @@ router.delete('/images/:image', (ctx, next) => {
 
     try {
 
+        let meta = metaMapper.getByName(image);
+        fs.unlinkSync(path.join(STORAGE, meta.fileName));
         metaMapper.delete(image);
+
         ctx.status = 200;
 
     } catch (error) {

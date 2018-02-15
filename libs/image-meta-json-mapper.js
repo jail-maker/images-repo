@@ -8,12 +8,13 @@ class ImageMetaJsonMapper {
     constructor(file) {
 
         this._file = file;
+        this._data = this._read();
 
     }
 
     getByName(name) {
 
-        let data = this._read();
+        let data = this._data;
         if (!data.data[name])
             throw new Error(`Image "${name}" not found.`);
 
@@ -23,7 +24,7 @@ class ImageMetaJsonMapper {
 
     getImages(offset = 0, limit = 100) {
 
-        let data = this._read();
+        let data = this._data;
         let index = data.index.slice(offset, limit);
 
         let images = index.map(name => data.data[name]);
@@ -33,7 +34,7 @@ class ImageMetaJsonMapper {
 
     save(image) {
 
-        let data = this._read();
+        let data = this._data;
         data.data[image.name] = image;
 
         data.index = [];
@@ -63,7 +64,7 @@ class ImageMetaJsonMapper {
 
     has(name) {
 
-        let data = this._read();
+        let data = this._data;
 
         if (data.data[name]) return true;
         else return false;
@@ -72,7 +73,7 @@ class ImageMetaJsonMapper {
 
     delete(name) {
 
-        let data = this._read();
+        let data = this._data;
 
         if (!data.data[name])
             throw new Error(`Image "${image.name} not exists."`);

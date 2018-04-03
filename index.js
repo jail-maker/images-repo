@@ -208,6 +208,7 @@ router.get('/images/:image/data', (ctx, next) => {
     let meta = metaMapper.getByName(image);
     let stream = fs.createReadStream(path.join(STORAGE, meta.fileName));
     ctx.set('content-disposition', `attachment; filename="${meta.fileName}"`)
+    ctx.set('content-type', 'application/x-xz');
     ctx.body = stream;
     return;
 

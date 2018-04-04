@@ -7,11 +7,18 @@ const path = require('path');
 const Koa = require('koa');
 const Router = require('koa-better-router');
 const body = require('koa-body');
+const getRawBody = require('raw-body');
 const uniqid = require('uniqid');
+const tempWrite = require('temp-write');
+const tempfile = require('tempfile');
+const tempdir = require('tempdir');
+const mime = require('mime');
 
 const ImageMeta = require('./libs/image-meta.js');
 const ImageMetaJsonMapper = require('./libs/image-meta-json-mapper.js');
 const sha256File = require('./libs/sha256-file.js');
+const decompress = require('./libs/decompress.js');
+const ManifestFactory = require('./libs/manifest-factory.js');
 
 const app = new Koa();
 const router = Router({ prefix: '/api/v1' }).loadMethods();
@@ -66,6 +73,61 @@ router.post('/images', (ctx, next) => {
     }
 
     ctx.body = '';
+
+});
+
+router.post('/image-importer', async (ctx, next) => {
+
+    let mimeType = ctx.request.headers['content-type'];
+    let ext = mime.getExtension(mimeType);
+    let imageFileName = `${uniqid()}.${ext}`;
+    let imageFilePath = await tempWrite(ctx.request.rawBody, imageFileName);
+    let tmpDir = await tempdir();
+    let manifestFile = path.join(tmpDir, '.manifest');
+    let manifest = {};
+    let metaMapper = new ImageMetaJsonMapper('images-meta.json');
+    let meta = new ImageMeta;
+
+    fs.renameSync(imageFilePath, path.join(STORAGE, imageFileName));
+    imageFilePath = path.join(STORAGE, imageFileName);
+
+    try {
+
+        await decompress(imageFilePath, tmpDir, {files: ['.manifest']});
+        manifest = ManifestFactory.fromFile(manifestFile);
+
+    } catch (error) {
+
+        ctx.status = 400;
+        ctx.body = "Bad image format.";
+        fs.unlinkSync(imageFilePath);
+        return;
+
+    } finally {
+
+        fs.unlinkSync(manifestFile);
+
+    }
+
+    meta.name = manifest.name;
+    meta.parent = manifest.from;
+    meta.fileName = imageFileName;
+    meta.sha256 = await sha256File(imageFilePath);
+
+    try {
+
+        metaMapper.create(meta);
+        ctx.status = 201;
+
+    } catch (error) {
+
+        ctx.status = 409;
+        ctx.body = `Image "${meta.name}" already exists.`;
+        fs.unlinkSync(imageFilePath);
+
+    }
+
+    return;
 
 });
 
@@ -216,6 +278,12 @@ router.get('/images/:image/data', (ctx, next) => {
 
 root.extend(router);
 app.use(body({ multipart: true }));
+app.use(async (ctx, next) => {
+
+    ctx.request.rawBody = await getRawBody(ctx.req, { limit: '500mb' });
+    await next();
+
+});
 app.use(root.middleware());
 app.use(router.middleware());
 

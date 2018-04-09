@@ -37,9 +37,7 @@ class ImageMetaJsonMapper {
         let data = this._data;
         data.data[image.name] = image;
 
-        data.index = [];
-        for (let key in data.data) data.index.push(key);
-
+        this._reindex();
         this._write(data);
 
     }
@@ -80,10 +78,17 @@ class ImageMetaJsonMapper {
 
         delete(data.data[name]);
 
+        this._reindex();
+        this._write(data);
+
+    }
+
+    _reindex() {
+
+        let data = this._data;
+
         data.index = [];
         for (let key in data.data) data.index.push(key);
-
-        this._write(data);
 
     }
 

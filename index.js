@@ -16,6 +16,7 @@ const mime = require('mime');
 
 const ImageMeta = require('./libs/image-meta.js');
 const ImageMetaJsonMapper = require('./libs/image-meta-json-mapper.js');
+const metaMapper = new ImageMetaJsonMapper('images-meta.json');
 const sha256File = require('./libs/sha256-file.js');
 const decompress = require('./libs/decompress.js');
 const ManifestFactory = require('./libs/manifest-factory.js');
@@ -30,7 +31,6 @@ const PORT = 3000;
 
 router.get('/images', (ctx, next) => {
 
-    let metaMapper = new ImageMetaJsonMapper('images-meta.json');
     let images = metaMapper.getImages();
 
     let body = images.map(image => {
@@ -60,7 +60,6 @@ router.post('/images', (ctx, next) => {
     meta.parent = body.parent;
     meta.version = body.version;
 
-    let metaMapper = new ImageMetaJsonMapper('images-meta.json');
     try {
 
         metaMapper.create(meta);
@@ -85,7 +84,6 @@ router.post('/image-importer', async (ctx, next) => {
     let tmpDir = await tempdir();
     let manifestFile = path.join(tmpDir, '.manifest');
     let manifest = {};
-    let metaMapper = new ImageMetaJsonMapper('images-meta.json');
     let meta = new ImageMeta;
 
     fs.renameSync(imageFilePath, path.join(STORAGE, imageFileName));
@@ -133,7 +131,6 @@ router.post('/image-importer', async (ctx, next) => {
 
 router.get('/images/:image', (ctx, next) => {
 
-    let metaMapper = new ImageMetaJsonMapper('images-meta.json');
     let meta = {};
     try {
 
@@ -161,7 +158,6 @@ router.get('/images/:image', (ctx, next) => {
 router.get('/images/:image/parents', (ctx, next) => {
 
     let image = ctx.params.image;
-    let metaMapper = new ImageMetaJsonMapper('images-meta.json');
     let current = metaMapper.getByName(image);
 
     let getParents = (name, images = []) => {
@@ -198,7 +194,6 @@ router.get('/images/:image/parents', (ctx, next) => {
 router.delete('/images/:image', (ctx, next) => {
 
     let image = ctx.params.image;
-    let metaMapper = new ImageMetaJsonMapper('images-meta.json');
 
     try {
 
@@ -219,7 +214,6 @@ router.delete('/images/:image', (ctx, next) => {
 
 router.put('/images/:image/data', async (ctx, next) => {
 
-    let metaMapper = new ImageMetaJsonMapper('images-meta.json');
 
     let image = ctx.params.image;
     if (!metaMapper.has(image)) {
@@ -257,7 +251,6 @@ router.put('/images/:image/data', async (ctx, next) => {
 
 router.get('/images/:image/data', (ctx, next) => {
 
-    let metaMapper = new ImageMetaJsonMapper('images-meta.json');
     let image = ctx.params.image;
 
     if (!metaMapper.has(image)) {
